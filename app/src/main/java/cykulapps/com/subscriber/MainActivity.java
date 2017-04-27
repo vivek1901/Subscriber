@@ -47,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
                             switch (status.getCategory()) {
                                 case PNConnectedCategory:
 
-                                    pubnub.subscribe()
-                                            .channels(Arrays.asList("energy.*")) // subscribe to channels
-                                            .execute();
+//                                    pubnub.subscribe()
+//                                            .channels(Arrays.asList("energy.*")) // subscribe to channels
+//                                            .execute();
                                     // this is expected for a subscribe, this means there is no error or issue whatsoever
                                 case PNReconnectedCategory:
                                     // this usually occurs if subscribe temporarily fails but reconnects. This means
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             public void message(PubNub pubnub, PNMessageResult message)
             {
                 jsonObject=(JsonObject) message.getMessage();
-              String s1= String.valueOf(jsonObject.get("1"));
+                String s1= String.valueOf(jsonObject.get("1"));
                 String s2= String.valueOf(jsonObject.get("2"));
                 String s3= String.valueOf(jsonObject.get("3"));
 
@@ -107,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         });
+        pubnub.subscribe()
+                .channels(Arrays.asList("energy.*")) // subscribe to channels
+                .execute();
 
     }
 }
