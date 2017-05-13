@@ -2,8 +2,8 @@ package cykulapps.com.subscriber;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
-
 import com.google.gson.JsonObject;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -11,16 +11,14 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
-
-import org.json.JSONObject;
-
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     PNConfiguration pnConfiguration;
-    JsonObject jsonObject;
     PubNub pubnub;
     TextView tv1, tv2, tv3;
+    String s1,s2,s3;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +26,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         pnConfiguration = new PNConfiguration();
+        tv1=(TextView) findViewById(R.id.tv1);
+        tv2=(TextView)  findViewById(R.id.tv2);
+        tv3=(TextView) findViewById(R.id.tv3);
         pnConfiguration.setSubscribeKey("sub-c-b7926738-2a8a-11e7-984f-0619f8945a4f");
         pnConfiguration.setPublishKey("pub-c-922a861c-981a-45f6-83ff-535f86d30e1f");
         pnConfiguration.setSecure(true);
         pubnub= new PubNub(pnConfiguration);
-        pubnub.addListener(new SubscribeCallback() {
+        pubnub.addListener(new SubscribeCallback()
+        {
+
             @Override
             public void status(PubNub pubnub, PNStatus status) {
                 if (status.getOperation() != null) {
@@ -88,16 +91,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void message(PubNub pubnub, PNMessageResult message)
             {
-                jsonObject=(JsonObject) message.getMessage();
-                String s1= String.valueOf(jsonObject.get("1"));
-                String s2= String.valueOf(jsonObject.get("2"));
-                String s3= String.valueOf(jsonObject.get("3"));
 
-                tv1.setText(s1);
-                tv2.setText(s2);
-                tv3.setText(s3);
+                if (message.getMessage()  instanceof JsonObject) {
 
+                    JsonObject json = (JsonObject) message.getMessage();
 
+                    s1 = json.get("key1").getAsString();
+                    s2 = json.get("key2").getAsString();
+                    s3 = json.get("key3").getAsString();
+
+                    Log.d("Message", "fetched");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            tv1.setText(s1);
+                            tv2.setText(s2);
+                            tv3.setText(s3);
+
+                        }
+                    });
+                } else {
+                    Log.d("no", "something wrong");
+                }
             }
 
             @Override
@@ -107,8 +124,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         });
+
+
         pubnub.subscribe()
-                .channels(Arrays.asList("energy.*")) // subscribe to channels
+                .channels(Arrays.asList("cykul.*"))
+                .channelGroups(Arrays.asList("energyGroup"))
                 .execute();
 
     }
